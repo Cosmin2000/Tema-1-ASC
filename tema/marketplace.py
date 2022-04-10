@@ -7,8 +7,10 @@ March 2021
 """
 import time
 import logging
+import unittest
 from logging.handlers import RotatingFileHandler
 from threading import Lock, currentThread
+from tema.product import Tea, Coffee
 
 
 class Marketplace:
@@ -164,6 +166,7 @@ class Marketplace:
 
 class TestMarketplace(unittest.TestCase):
     def setUp(self):
+        """Initializations"""
         self.marketplace = Marketplace(2)
         self.products = [Tea("Tei", 10, "Herbal"), Coffee(name='Cappuccino', price=2, acidity=4.02, roast_level='MEDIUM')]
         self.carts = [ [ {
@@ -178,10 +181,12 @@ class TestMarketplace(unittest.TestCase):
                     } ] ]
 
     def test_register_producer(self):
+        """ Test register_producer """
         self.assertEqual(self.marketplace.register_producer(), 0, "register FAILED")
         self.assertEqual(self.marketplace.register_producer(), 1, "register FAILED")
 
     def test_publish(self):
+        """ Test publish """
         prod_id = self.marketplace.register_producer()
         self.assertTrue(self.marketplace.publish(prod_id, self.products[1]), "publish FAILED")
         self.assertTrue(self.marketplace.publish(prod_id, self.products[0]), "publish FAILED")
@@ -189,10 +194,12 @@ class TestMarketplace(unittest.TestCase):
 
 
     def test_new_cart(self):
+        """ Test new cart """
         self.assertEqual(self.marketplace.new_cart(), 0, "new_cart FAILED")
         self.assertEqual(self.marketplace.new_cart(), 1, "new_cart FAILED")
 
     def test_add_to_cart(self):
+        """ Test add_to_cart """
         prod_id = self.marketplace.register_producer()
         self.marketplace.publish(prod_id,self.products[1])
         self.marketplace.publish(prod_id,self.products[0])
@@ -202,6 +209,7 @@ class TestMarketplace(unittest.TestCase):
         self.assertFalse(self.marketplace.add_to_cart(cart_id, self.products[0]), "add_to_cart FAILED")
 
     def test_remove_from_cart(self):
+        """ Test remove from cart """
         prod_id = self.marketplace.register_producer()
         cart_id = self.marketplace.new_cart()
         self.marketplace.publish(prod_id,self.products[1])
@@ -214,6 +222,7 @@ class TestMarketplace(unittest.TestCase):
         self.assertEqual(len(self.marketplace.list_of_carts[0]), 1,"remove_from_cart FAILED")
 
     def test_place_order(self):
+        """ Test place order """
         prod_id = self.marketplace.register_producer()
         cart_id = self.marketplace.new_cart()
         self.marketplace.publish(prod_id,self.products[1])
