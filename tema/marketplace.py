@@ -198,8 +198,8 @@ class TestMarketplace(unittest.TestCase):
         Publish 2 products, register a cart, one producer and add only 2 products
         """
         prod_id = self.marketplace.register_producer()
-        self.marketplace.publish(prod_id,self.stock_products[1])
-        self.marketplace.publish(prod_id,self.stock_products[0])
+        self.marketplace.publish(prod_id, self.stock_products[1])
+        self.marketplace.publish(prod_id, self.stock_products[0])
         cart_id = self.marketplace.new_cart()
         first_add = self.marketplace.add_to_cart(cart_id, self.stock_products[1])
         self.assertTrue(first_add, "add_to_cart FAILED")
@@ -214,14 +214,14 @@ class TestMarketplace(unittest.TestCase):
         """
         prod_id = self.marketplace.register_producer()
         cart_id = self.marketplace.new_cart()
-        self.marketplace.publish(prod_id,self.stock_products[1])
-        self.marketplace.publish(prod_id,self.stock_products[0])
+        self.marketplace.publish(prod_id, self.stock_products[1])
+        self.marketplace.publish(prod_id, self.stock_products[0])
         self.marketplace.add_to_cart(cart_id, self.stock_products[0])
         self.marketplace.add_to_cart(cart_id, self.stock_products[1])
         self.marketplace.remove_from_cart(cart_id, self.stock_products[0])
-        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1,"remove_from_cart FAILED")
+        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1, "remove_from_cart FAILED")
         self.marketplace.remove_from_cart(cart_id, self.stock_products[0])
-        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1,"remove_from_cart FAILED")
+        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1, "remove_from_cart FAILED")
 
     def test_place_order(self):
         """
@@ -229,8 +229,8 @@ class TestMarketplace(unittest.TestCase):
         """
         prod_id = self.marketplace.register_producer()
         cart_id = self.marketplace.new_cart()
-        self.marketplace.publish(prod_id,self.stock_products[1])
-        self.marketplace.publish(prod_id,self.stock_products[0])
+        self.marketplace.publish(prod_id, self.stock_products[1])
+        self.marketplace.publish(prod_id, self.stock_products[0])
         self.marketplace.add_to_cart(cart_id, self.stock_products[0])
         self.marketplace.add_to_cart(cart_id, self.stock_products[1])
         self.marketplace.remove_from_cart(cart_id, self.stock_products[0])
