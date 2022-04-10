@@ -161,3 +161,68 @@ class Marketplace:
                 self.producers_size[prod[0]] -= 1
             self.logger.info("Finished place_order")
         return cart_list
+
+class TestMarketplace(unittest.TestCase):
+    def setUp(self):
+        self.marketplace = Marketplace(2)
+        self.products = [Tea("Tei", 10, "Herbal"), Coffee(name='Cappuccino', price=2, acidity=4.02, roast_level='MEDIUM')]
+        self.carts = [ [ {
+                        "type": "add",
+                        "product": self.products[0],
+                        "quantity": 1
+                    },
+                    {
+                        "type": "add",
+                        "product": self.products[1],
+                        "quantity": 3
+                    } ] ]
+
+    def test_register_producer(self):
+        self.assertEqual(self.marketplace.register_producer(), 0, "register FAILED")
+        self.assertEqual(self.marketplace.register_producer(), 1, "register FAILED")
+
+    def test_publish(self):
+        prod_id = self.marketplace.register_producer()
+        self.assertTrue(self.marketplace.publish(prod_id, self.products[1]), "publish FAILED")
+        self.assertTrue(self.marketplace.publish(prod_id, self.products[0]), "publish FAILED")
+        self.assertFalse(self.marketplace.publish(prod_id, self.products[0]), "publish FAILED")
+
+
+    def test_new_cart(self):
+        self.assertEqual(self.marketplace.new_cart(), 0, "new_cart FAILED")
+        self.assertEqual(self.marketplace.new_cart(), 1, "new_cart FAILED")
+
+    def test_add_to_cart(self):
+        prod_id = self.marketplace.register_producer()
+        self.marketplace.publish(prod_id,self.products[1])
+        self.marketplace.publish(prod_id,self.products[0])
+        cart_id = self.marketplace.new_cart()
+        self.assertTrue( self.marketplace.add_to_cart(cart_id, self.products[1]), "add_to_cart FAILED")
+        self.assertTrue(self.marketplace.add_to_cart(cart_id, self.products[0]), "add_to_cart FAILED")
+        self.assertFalse(self.marketplace.add_to_cart(cart_id, self.products[0]), "add_to_cart FAILED")
+
+    def test_remove_from_cart(self):
+        prod_id = self.marketplace.register_producer()
+        cart_id = self.marketplace.new_cart()
+        self.marketplace.publish(prod_id,self.products[1])
+        self.marketplace.publish(prod_id,self.products[0])
+        self.marketplace.add_to_cart(cart_id, self.products[0])
+        self.marketplace.add_to_cart(cart_id, self.products[1])
+        self.marketplace.remove_from_cart(cart_id, self.products[0])
+        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1,"remove_from_cart FAILED")
+        self.marketplace.remove_from_cart(cart_id, self.products[0])
+        self.assertEqual(len(self.marketplace.list_of_carts[0]), 1,"remove_from_cart FAILED")
+
+    def test_place_order(self):
+        prod_id = self.marketplace.register_producer()
+        cart_id = self.marketplace.new_cart()
+        self.marketplace.publish(prod_id,self.products[1])
+        self.marketplace.publish(prod_id,self.products[0])
+        self.marketplace.add_to_cart(cart_id, self.products[0])
+        self.marketplace.add_to_cart(cart_id, self.products[1])
+        self.marketplace.remove_from_cart(cart_id, self.products[0])
+        self.marketplace.add_to_cart(cart_id, self.products[0])
+        products_ref = [self.products[1], self.products[0]]
+        products_out = self.marketplace.place_order(cart_id)
+        for i in range(len(products_ref)):
+            self.assertIs(products_out[i], products_ref[i], "place_order FAILED")
