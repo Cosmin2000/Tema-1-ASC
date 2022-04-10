@@ -34,19 +34,21 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.republish_wait_time = republish_wait_time
-        self.prod_id = -1
 
     def run(self):
-        if self.prod_id == -1:
-            self.prod_id = self.marketplace.register_producer()
+        prod_id = self.marketplace.register_producer()
         while True:
             for product in self.products:
                 i = 0
-                while i < int(product[1]):
-                    not_full_queue = self.marketplace.publish(producer_id=self.prod_id,
-                                                              product=product[0])
+                # public fiecare produs(in cantitatea dorita)
+                quantity = product[1]
+                prod = product[0]
+                reproduce_time = product[2]
+                while i < int(quantity):
+                    not_full_queue = self.marketplace.publish(producer_id=prod_id,
+                                                              product=prod)
                     if not_full_queue:
-                        time.sleep(product[2])
+                        time.sleep(reproduce_time)
                         i += 1
                     else:
                         time.sleep(self.republish_wait_time)

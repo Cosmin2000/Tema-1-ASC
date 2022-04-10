@@ -20,10 +20,12 @@ class Marketplace:
     """
 
     logger = logging.getLogger('marketplace.log')
+    # creez fisierul de log
     handler = RotatingFileHandler("marketplace.log", maxBytes=20000, backupCount=10)
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s : %(message)s')
     handler.setFormatter(formatter)
+    # setez timpul global
     logging.Formatter.converter = time.gmtime
     logger.addHandler(handler)
 
@@ -38,11 +40,8 @@ class Marketplace:
         self.producers_queue_len = {}
         # list of lists [id_producer, product] - available products
         self.stock_products = []
-
-        # key - id_cart, val - list of tuples [id_producer, product]
+        # key - id_cart, val - list of lists [id_producer, product]
         self.list_of_carts = {}
-        self.nr_carts = 0
-
         self.queue_size_per_producer = queue_size_per_producer
         # Producers locks
         self.producers_id = Lock()
@@ -58,7 +57,7 @@ class Marketplace:
         """
         Returns an id for the producer that calls this.
         """
-        # returnez nr-ul cumparatorului
+        # returnez id-ul producer-ului
         with self.producers_id:
             self.logger.info("Starting  register_producer")
             self.producers_queue_len[len(self.producers_queue_len)] = 0
@@ -124,7 +123,7 @@ class Marketplace:
                     # Daca am gasit produsul in stock il scot din stoc si il adaug in cos
                     self.stock_products.remove(prod)
                     self.list_of_carts[cart_id].append([prod[0], product])
-                    self.logger.info("Finished  add_to_cart")
+                    self.logger.info("Finished  add %s to cart with id %d", product, cart_id)
                     return True
             self.logger.info("Finished  add %s to cart with id %d", product, cart_id)
         return False
@@ -175,16 +174,6 @@ class TestMarketplace(unittest.TestCase):
         self.marketplace = Marketplace(2)
         self.stock_products = [Tea("Tei", 10, "Herbal"),
         Coffee(name='Cappuccino', price=2, acidity=4.02, roast_level='MEDIUM')]
-        self.carts = [ [ {
-                        "type": "add",
-                        "product": self.stock_products[0],
-                        "quantity": 1
-                    },
-                    {
-                        "type": "add",
-                        "product": self.stock_products[1],
-                        "quantity": 3
-                    } ] ]
 
     def test_register_producer(self):
         """ Register 2 producers """

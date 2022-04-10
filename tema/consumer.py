@@ -35,18 +35,19 @@ class Consumer(Thread):
         self.marketplace = marketplace
         self.carts = carts
         self.retry_wait_time = retry_wait_time
-        self.cart_id = -1
         self.my_items = []
 
     def run(self):
         for cart_operations in self.carts:
-            self.cart_id = self.marketplace.new_cart()
+            cart_id = self.marketplace.new_cart()
+            # pentru fiecare rundca de cumparaturi
             for operatie in cart_operations:
                 if operatie["type"] == "add":
                     i = 0
+                    # incerc sa adug in cos toata cantitatea
                     while i < operatie["quantity"]:
                         can_add = self.marketplace.add_to_cart(
-                            cart_id=self.cart_id,
+                            cart_id=cart_id,
                             product=operatie["product"])
                         if not can_add:
                             time.sleep(self.retry_wait_time)
@@ -54,10 +55,11 @@ class Consumer(Thread):
                             i += 1
                 elif operatie["type"] == "remove":
                     i = 0
+                    # scot din cos toata cantitatea
                     while i < operatie["quantity"]:
                         self.marketplace.remove_from_cart(
-                            cart_id=self.cart_id,
+                            cart_id=cart_id,
                             product=operatie["product"])
                         i += 1
-
-            self.marketplace.place_order(self.cart_id)
+            # plasez comanda
+            self.marketplace.place_order(cart_id)
