@@ -43,7 +43,8 @@ mutat-o in "place_order". Pentru a obtine numele consumatorului, am folosit curr
     Pentru sincronizare am folosit 4 Lock-uri, "producers_id" pentru inregistrarea producatorilor, "cart_id" pentru inregistrarea
 cosurilor, "place_order_lock" pentru sincronizare stdout-ului in place_order si "stock_products_lock" pentru sincronizare la cautarea 
 unui produs in stock.
-
+    La functiile "publish" si "remove_from_cart" nu a fost nevoie de sincronizare deoarece ele se fac la nivel de producator, cos
+de cumparaturi folosind id-ul, iar operatiile folosite sunt thread safe.
 Logging:
     Pentru a realiza logging-ul am folosit logger. Pentru a creea fisierul de log am folosit functia RotatingFIleHandler. 
     Pentru a seta timestamp-ul logurilor in time global, am folosit Formatter-ul pe care l-am setat la gmtime.
