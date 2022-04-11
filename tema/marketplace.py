@@ -43,10 +43,10 @@ class Marketplace:
         # key - id_cart, val - list of lists [id_producer, product]
         self.list_of_carts = {}
         self.queue_size_per_producer = queue_size_per_producer
-        # Producers locks
-        self.producers_id = Lock()
+        # Producers lock
+        self.producers_id_lock = Lock()
         # Consumers locks
-        self.cart_id = Lock()
+        self.cart_id_lock = Lock()
         self.place_order_lock = Lock()
         self.stock_products_lock = Lock()
 
@@ -58,7 +58,7 @@ class Marketplace:
         Returns an id for the producer that calls this.
         """
         # returnez id-ul producer-ului
-        with self.producers_id:
+        with self.producers_id_lock:
             self.logger.info("Starting  register_producer")
             self.producers_queue_len[len(self.producers_queue_len)] = 0
             self.logger.info("Finished  register_producer")
@@ -95,7 +95,7 @@ class Marketplace:
 
         :returns an int representing the cart_id
         """
-        with self.cart_id:
+        with self.cart_id_lock:
             self.logger.info("Starting  new_cart")
             # creez un nou cart
             self.list_of_carts[len(self.list_of_carts)] = []
@@ -118,6 +118,7 @@ class Marketplace:
 
         with self.stock_products_lock:
             self.logger.info("Starting  add %s to cart with id %d", product, cart_id)
+            # caut produsul in stock
             for prod in self.stock_products:
                 if prod[1] == product:
                     # Daca am gasit produsul in stock il scot din stoc si il adaug in cos

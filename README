@@ -4,28 +4,27 @@ Grupa: 332CC
                             Tema 1
 
 ORGANIZARE:
-    Tema am organizat-o dupa modelul problemei de sincronizare Producer-Consumer in care
-avem mai multi producatori si mai multi consumatori.
+    Tema am organizat-o dupa modelul problemei de sincronizare Producer-Consumer in care avem mai multi producatori si mai multi consumatori.
     Producer-ul se executa continuu. Prima data il inregistrez retinand id-ul (folosind functia "register_producer" din marketplace),
 iar apoi pentru fiecare produs, extrag cantitatea, timpul pe care il asteapta pentru a reproduce si produsul efectiv,
 iar apoi produc (folosind functia "publish" din marketplace) in marketplace toata cantitatea de produs. Daca un produs
 s-a putut produce(a avut loc in coada) astept timpul pentru reproducere si trec la urmatorul produs, altfel (coada era plina)
 astept timpul necesare pentru a reincerca producerea.
-    In consumer, iterez prin fiecare operatie de cumparare (ca si cum ar avea mai multe cosuri). Pentru
-fiecare cos, ii obtin id-ul folosind functia "new_cart" din marketplace, iar apoi execut fiecare operatie din cos. Daca
-operatia este "add" incerc sa adaug in cos toata cantitatea de acel produs folosind functia "add_to_cart" din marketplace.
-. Daca nu am putut adauga un produs in cos, astept timpul de retry, altfel trec la urmatorul produs. Daca operatia este "remove", 
-intr-o bucla, scot fiecare produs din cos, folosind functia "remove_from_cart" din marketplace. Dupa terminarea operatiilor de add 
-si remove, plasez comanda folosind functia "place_order" din marketplace.
+    In consumer, iterez prin fiecare operatie de cumparare (ca si cum ar avea mai multe cosuri). Pentru fiecare cos, ii obtin
+id-ul folosind functia "new_cart" din marketplace, iar apoi execut fiecare operatie din cos. Daca operatia este "add" incerc sa 
+adaug in cos toata cantitatea de acel produs folosind functia "add_to_cart" din marketplace. Daca nu am putut adauga un produs in cos,
+astept timpul de retry, altfel trec la urmatorul produs. Daca operatia este "remove", intr-o bucla, scot fiecare produs din cos,
+folosind functia "remove_from_cart" din marketplace. Dupa terminarea operatiilor de add si remove, plasez comanda folosind functia
+"place_order" din marketplace.
     In marketplace, am ales sa folosesc o lista de produse "stock_products" care semnifica lista de produse care sunt in stock,
 si pentru a limita numarul de produse publicate am ales sa folosesc un dictionar "producers_queue_len" care semnfica 
-numarul de produse publicate de fiecare producator. Astfel, trecerea unui produs in indisponibil este usoara, fiindca doar 
+numarul de produse publicate de fiecare producator. Astfel, trecerea unui produs in starea indisponibil este usoara, fiindca doar 
 scot produsul din stock, insa nu il scot si din coada producer-ului.
     stock_products = [[id_producator, produs]]; producers_queue_len = {key: id_producator;value = nr. produse publicate}
 Exemplu: producatorul cu id 0 a publicat 2 produse: produs1, produs2:
     stock_products = [[0, produs1], [0, produs2]] ; producers_queue_len = {0=2}
     Pentru consumator am ales sa folosesc un dictionar "list_of_carts" care are drept cheie id-ul cosului, iar ca valoare
-o lista de lista [id_producator, produs]. Folosesc id-ul producatorul pentru ca imi este util atunci cand voi plasa comanda
+o lista de liste [id_producator, produs]. Folosesc id-ul producatorul pentru ca imi este util atunci cand voi plasa comanda
 si va trebui sa scot produsele din coada producatorului (scad nr. de produse publicate).
     list_of_carts = {key: id_cart; value = [ [id_producator,produs] ]}
 Exemplu: avem cos-ul cu id-ul 0 in care am adaugat produs1 de la producatorul 0 si produs2 de la producatorul 1
@@ -36,11 +35,12 @@ Sincronizare:
 de sincronizare la functiile de "register_producer" si "new_cart" unde puteam avea un race condition iar mai multi producatori
 /mai multe cosuri puteau obtine acelasi id. 
     Am mai avut nevoie la "functia add_to_cart" deoarece se putea intampla ca doi producatori sa gaseasca disponibil acelasi
-produs, iar al doilea producator cand incerca sa adauge in cos sau sa scoata din lista de produse, avea un produs inexistent.
-    Sincronizare am mai facut si la functia "place_order" deoarece am avut nevoie sa sincronizez stdout-ul, iar printarea am 
-facut-o in functia "place_order". Initial printarea am facut-o in consumer, insa cateodata apareau probleme de afisare, asa ca am
+produs, in acelasi timp, iar al doilea producator cand incerca sa adauge in cos sau sa scoata din lista de produse, avea un produs
+inexistent(a fost luat de primul sau invers).
+    Sincronizare am mai facut si la functia "place_order" deoarece am avut nevoie sa sincronizez stdout-ul, printarea fiind 
+facuta in functia "place_order". Initial printarea am facut-o in consumer, insa cateodata apareau probleme de afisare, asa ca am
 mutat-o in "place_order". Pentru a obtine numele consumatorului, am folosit currentThread.
-    Pentru sincronizare am folosit 4 Lock-uri, "producers_id" pentru inregistrarea producatorilor, "cart_id" pentru inregistrarea
+    Pentru sincronizare am folosit 4 Lock-uri, "producers_id_lock" pentru inregistrarea producatorilor, "cart_id_lock" pentru inregistrarea
 cosurilor, "place_order_lock" pentru sincronizare stdout-ului in place_order si "stock_products_lock" pentru sincronizare la cautarea 
 unui produs in stock.
     La functiile "publish" si "remove_from_cart" nu a fost nevoie de sincronizare deoarece ele se fac la nivel de producator, cos

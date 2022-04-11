@@ -40,11 +40,11 @@ class Consumer(Thread):
     def run(self):
         for cart_operations in self.carts:
             cart_id = self.marketplace.new_cart()
-            # pentru fiecare rundca de cumparaturi
+            # pentru fiecare runda de cumparaturi.
             for operatie in cart_operations:
                 if operatie["type"] == "add":
                     i = 0
-                    # incerc sa adug in cos toata cantitatea
+                    # incerc sa adug in cos toata cantitatea.
                     while i < operatie["quantity"]:
                         can_add = self.marketplace.add_to_cart(
                             cart_id=cart_id,
@@ -55,7 +55,7 @@ class Consumer(Thread):
                             i += 1
                 elif operatie["type"] == "remove":
                     i = 0
-                    # scot din cos toata cantitatea
+                    # scot din cos toata cantitatea.
                     while i < operatie["quantity"]:
                         self.marketplace.remove_from_cart(
                             cart_id=cart_id,

@@ -40,13 +40,14 @@ class Producer(Thread):
         while True:
             for product in self.products:
                 i = 0
-                # public fiecare produs(in cantitatea dorita)
+                # public fiecare produs(in cantitatea dorita).
                 quantity = product[1]
                 prod = product[0]
                 reproduce_time = product[2]
                 while i < int(quantity):
                     not_full_queue = self.marketplace.publish(producer_id=prod_id,
                                                               product=prod)
+                    # daca a avut loc in coada.
                     if not_full_queue:
                         time.sleep(reproduce_time)
                         i += 1
